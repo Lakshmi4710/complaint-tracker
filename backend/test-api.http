@@ -1,0 +1,220 @@
+### Variables
+@baseUrl = http://localhost:5000
+@adminEmail = admin@example.com
+@adminPassword = admin123
+@residentEmail = john@example.com
+@residentPassword = password123
+
+### ============================================
+### AUTHENTICATION
+### ============================================
+
+### Create Admin User
+# @name createAdmin
+POST {{baseUrl}}/api/auth/create-admin
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+
+### Login as Admin
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+
+### Register New Resident
+# @name registerResident
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "{{residentEmail}}",
+  "password": "{{residentPassword}}",
+  "phoneNumber": "1234567890",
+  "address": "123 Main Street, Apt 4B"
+}
+
+
+### Login as Resident
+# @name loginResident
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{residentEmail}}",
+  "password": "{{residentPassword}}"
+}
+
+
+### Get Current User (Admin)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+### Get Current User (Resident)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{loginResident.response.body.token}}
+
+
+### ============================================
+### COMPLAINT MANAGEMENT
+### ============================================
+
+### 1. Create Complaint (as Resident)
+# @name createComplaint1
+POST {{baseUrl}}/api/complaints
+Authorization: Bearer {{loginResident.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Broken Water Pipe in Building A",
+  "description": "There is a major water leak on the 3rd floor. Water is flooding the hallway and causing damage to the carpet.",
+  "category": "Maintenance",
+  "priority": "Urgent",
+  "location": "Building A, 3rd Floor, Hallway"
+}
+
+
+### 2. Create Another Complaint (as Resident)
+# @name createComplaint2
+POST {{baseUrl}}/api/complaints
+Authorization: Bearer {{loginResident.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Parking Lot Lighting Not Working",
+  "description": "Several lights in the parking lot are out. This is a security concern as the area is very dark at night.",
+  "category": "Security",
+  "priority": "High",
+  "location": "Parking Lot, Section B"
+}
+
+
+### 3. Create Low Priority Complaint
+# @name createComplaint3
+POST {{baseUrl}}/api/complaints
+Authorization: Bearer {{loginResident.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Garden Area Needs Maintenance",
+  "description": "The garden area near the entrance has overgrown plants and needs trimming.",
+  "category": "Cleanliness",
+  "priority": "Low",
+  "location": "Front Entrance Garden"
+}
+
+
+### 4. Get All Complaints (as Resident - sees only own)
+GET {{baseUrl}}/api/complaints
+Authorization: Bearer {{loginResident.response.body.token}}
+
+
+### 5. Get All Complaints (as Admin - sees all)
+GET {{baseUrl}}/api/complaints
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+### 6. Get Complaints Filtered by Status (Pending)
+GET {{baseUrl}}/api/complaints?status=Pending
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+### 7. Get Complaints Filtered by Category (Maintenance)
+GET {{baseUrl}}/api/complaints?category=Maintenance
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+### 8. Get Single Complaint (replace COMPLAINT_ID)
+# After creating a complaint, copy its _id and replace below
+GET {{baseUrl}}/api/complaints/COMPLAINT_ID_HERE
+Authorization: Bearer {{loginResident.response.body.token}}
+
+
+### 9. Update Complaint Status (Admin - In Progress)
+# Replace COMPLAINT_ID with actual ID from created complaint
+PUT {{baseUrl}}/api/complaints/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5ODVmYzA4MDBjMWVjZjQxZTVkZDgyOSIsInJvbGUiOiJyZXNpZGVudCIsImlhdCI6MTc3MDQ3NTYwNCwiZXhwIjoxNzcxMDgwNDA0fQ.f887mITQ9eROwFv4PtOiBddrxNjR7ksW_7deshHvOQU
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "status": "In Progress",
+  "adminNotes": "Maintenance team has been notified. They will inspect the issue today at 2 PM.",
+  "priority": "Urgent"
+}
+
+
+### 10. Update Complaint Status (Admin - Resolved)
+# Replace COMPLAINT_ID with actual ID
+PUT {{baseUrl}}/api/complaints/COMPLAINT_ID_HERE
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "status": "Resolved",
+  "resolutionDetails": "Water pipe has been repaired. Carpet cleaning is scheduled for tomorrow.",
+  "adminNotes": "Issue resolved by maintenance team on 2024-01-15."
+}
+
+
+### 11. Update Complaint (Resident - limited fields)
+# Residents can only update title, description, location
+# Replace COMPLAINT_ID with actual ID
+PUT {{baseUrl}}/api/complaints/COMPLAINT_ID_HERE
+Authorization: Bearer {{loginResident.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "URGENT: Broken Water Pipe in Building A",
+  "description": "Water leak has gotten worse. Now affecting multiple apartments below. Immediate attention needed!",
+  "location": "Building A, 3rd Floor, Hallway (Apartments 301-305 affected)"
+}
+
+
+### 12. Get Complaint Statistics (Resident)
+GET {{baseUrl}}/api/complaints/stats
+Authorization: Bearer {{loginResident.response.body.token}}
+
+
+### 13. Get Complaint Statistics (Admin)
+GET {{baseUrl}}/api/complaints/stats
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+### 14. Delete Complaint (Admin Only)
+# Replace COMPLAINT_ID with actual ID
+DELETE {{baseUrl}}/api/complaints/COMPLAINT_ID_HERE
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+### 15. Try to Delete as Resident (Should Fail)
+# Replace COMPLAINT_ID with actual ID
+DELETE {{baseUrl}}/api/complaints/COMPLAINT_ID_HERE
+Authorization: Bearer {{loginResident.response.body.token}}
+
+
+### ============================================
+### TESTING WORKFLOW
+### ============================================
+
+### Complete Test Flow:
+# 1. Run "Login as Admin" to get admin token
+# 2. Run "Login as Resident" to get resident token  
+# 3. Create 2-3 complaints as resident
+# 4. Copy one complaint's _id from the response
+# 5. Use that _id in the "Get Single Complaint" request
+# 6. Update status as admin
+# 7. View stats as both admin and resident
+# 8. Try to delete as resident (should fail)
+# 9. Delete as admin (should succeed)
