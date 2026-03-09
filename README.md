@@ -13,6 +13,32 @@ The application is built using **React for the frontend**, **Node.js with Expres
 
 ---
 
+## Value Perspective
+
+### For Residents
+
+- Report maintenance issues easily through a centralized system  
+- Track the **status of issue resolution in real time**  
+- View other issues reported within the same apartment community  
+- Understand **how quickly owners respond to problems**  
+- Increased transparency and accountability in apartment maintenance  
+
+This ensures residents are informed and confident that their complaints are being addressed.
+
+---
+
+### For Apartment Owners
+
+- Identify problems within the apartment quickly  
+- Resolve maintenance issues efficiently  
+- Maintain a **clean and well-managed apartment environment**  
+- Improve responsiveness to residents' complaints  
+- Attract more residents by maintaining a well-managed property  
+
+A faster response to issues improves the apartment's reputation and makes it more attractive for current and future residents.
+
+---
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -20,6 +46,7 @@ The application is built using **React for the frontend**, **Node.js with Expres
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
+- [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -110,8 +137,8 @@ http://localhost:3000
 # Features
 
 - Residents can submit maintenance complaints easily
-- Designed specifically for **people living in apartments and residential communities**
 - Complaint status tracking system
+- Designed specifically for **people living in apartments and residential communities**
 - Centralized platform for maintenance issue reporting
 - Admin dashboard for complaint management
 - REST API powered by Express.js
@@ -165,6 +192,34 @@ complaint-tracker/
 ```
 
 This structure separates the **backend API logic** from the **React frontend**, making the system easier to maintain and scale.
+
+---
+
+# Future Enhancements
+
+### Email Notifications
+
+Automatic email alerts for:
+
+- New complaint submissions  
+- Complaint status updates  
+- Issue resolution notifications  
+
+This ensures both residents and apartment owners remain informed about maintenance activities.
+
+---
+
+### Owner Response Time Tracking
+
+The platform will track **how quickly apartment owners respond to reported issues**.
+
+Benefits include:
+
+- Transparency for residents  
+- Encouraging faster issue resolution  
+- Improving apartment management efficiency  
+
+Residents will be able to evaluate how responsive apartment management is to maintenance problems.
 
 ---
 
