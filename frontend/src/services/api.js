@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// IMPORTANT: backend base path must include /api
+// Backend API base URL
 const API_URL = 'https://complaint-tracker-backend-w7tr.onrender.com/api';
 
 const api = axios.create({
@@ -26,19 +26,13 @@ return config;
 api.interceptors.response.use(
 (response) => response,
 (error) => {
-const requestURL = error.config?.url || '';
-
-```
-const isAuthRoute =
-  requestURL.includes('/auth/login') ||
-  requestURL.includes('/auth/register');
-
-if (error.response?.status === 401 && !isAuthRoute) {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  window.location.href = '/login';
+if (error.response?.status === 401) {
+localStorage.removeItem('token');
+localStorage.removeItem('user');
+window.location.href = '/login';
 }
 
+```
 return Promise.reject(error);
 ```
 
