@@ -3,6 +3,12 @@ A web application that helps residents report and track maintenance issues in re
 
 ---
 
+## 🌐 Live Application
+
+🔗 https://complaint-tracker-gjf56ml8j-lakshmi4710s-projects.vercel.app
+
+---
+
 ## Description
 
 Complaint Tracker is a full-stack web application designed for **residents living in apartments or residential communities who frequently face maintenance issues** such as water leaks, electrical problems, sanitation issues, or other facility-related complaints.
