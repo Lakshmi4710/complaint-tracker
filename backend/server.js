@@ -10,17 +10,34 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// Allow requests from frontend (Vercel)
-app.use(cors({
-origin: [
+// Robust CORS configuration (works for Vercel + localhost)
+const allowedOrigins = [
 'http://localhost:3000',
 'https://complaint-tracker-gjf56ml8j-lakshmi4710s-projects.vercel.app'
-],
+];
+
+app.use(cors({
+origin: function (origin, callback) {
+if (!origin) return callback(null, true);
+if (allowedOrigins.indexOf(origin) === -1) {
+const msg = 'CORS policy: This origin is not allowed';
+return callback(new Error(msg), false);
+}
+return callback(null, true);
+},
+methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+allowedHeaders: ['Content-Type', 'Authorization'],
 credentials: true
 }));
 
+// Handle preflight requests
+app.options('*', cors());
+
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, {
+useNewUrlParser: true,
+useUnifiedTopology: true
+})
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
