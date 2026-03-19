@@ -10,66 +10,76 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// Robust CORS configuration (works for Vercel + localhost)
+// Allowed origins (Frontend URLs)
 const allowedOrigins = [
-'http://localhost:3000',
-'https://complaint-tracker-gjf56ml8j-lakshmi4710s-projects.vercel.app'
+  'http://localhost:3000',
+  'https://complaint-tracker-gjf56ml8j-lakshmi4710s-projects.vercel.app'
 ];
 
+// CORS Configuration
 app.use(cors({
-origin: function (origin, callback) {
-if (!origin) return callback(null, true);
-if (allowedOrigins.indexOf(origin) === -1) {
-const msg = 'CORS policy: This origin is not allowed';
-return callback(new Error(msg), false);
-}
-return callback(null, true);
-},
-methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-allowedHeaders: ['Content-Type', 'Authorization'],
-credentials: true
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow Postman / mobile apps
+
+    if (!allowedOrigins.includes(origin)) {
+      return callback(new Error('CORS policy: This origin is not allowed'), false);
+    }
+
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
-// Handle preflight requests
-app.options('*', cors());
+// ❌ REMOVED problematic line
+// app.options('*', cors());  <-- THIS CAUSED YOUR ERROR
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
-useNewUrlParser: true,
-useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1); // stop app if DB fails
+  });
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/profile', require('./routes/profileRoutes'));
 
-// Health check endpoint
+// Health Check Route (VERY useful for Render)
 app.get('/health', (req, res) => {
-res.json({ status: 'Server is running' });
+  res.status(200).json({ status: 'Server is running 🚀' });
 });
 
-// Global error handler
+// 404 Handler (better than using '*')
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+// Global Error Handler
 app.use((err, req, res, next) => {
-console.error(err.stack);
-res.status(500).json({
-success: false,
-message: 'Something went wrong!',
-error: process.env.NODE_ENV === 'development' ? err.message : undefined
-});
+  console.error('❌ Error:', err.message);
+
+  res.status(500).json({
+    success: false,
+    message: err.message || 'Internal Server Error'
+  });
 });
 
-// Start server
+// Start Server
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
-console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
 
-// Handle unhandled promise rejections
+// Handle Unhandled Promise Rejections
 process.on('unhandledRejection', (err) => {
-console.error('❌ Unhandled Rejection:', err);
-server.close(() => process.exit(1));
+  console.error('❌ Unhandled Rejection:', err.message);
+  server.close(() => process.exit(1));
 });
