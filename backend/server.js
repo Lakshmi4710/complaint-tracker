@@ -10,13 +10,13 @@ const app = express();
 // ✅ Middleware
 app.use(express.json());
 
-// ✅ SIMPLE & CORRECT CORS (NO CUSTOM HEADERS NEEDED)
+// ✅ SIMPLE & CORRECT CORS (no conflicts)
 app.use(cors({
-  origin: true, // allow all origins (safe for now)
+  origin: true,   // allow all origins (safe for now)
   credentials: true
 }));
 
-// ✅ VERY IMPORTANT: Handle preflight requests
+// ✅ Handle preflight requests (VERY IMPORTANT)
 app.options('*', cors());
 
 // MongoDB Connection
