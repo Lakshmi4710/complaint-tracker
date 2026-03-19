@@ -7,50 +7,17 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+// ✅ Middleware
 app.use(express.json());
 
-// ✅ Allowed origins (ADD your frontend URL here)
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://complaint-tracker-gjf56ml8j-lakshmi4710s-projects.vercel.app',
-  'https://complaint-frontend.onrender.com' // 🔥 replace with your actual frontend URL
-];
-
-// ✅ CORS Configuration (FIXED)
+// ✅ SIMPLE & CORRECT CORS (NO CUSTOM HEADERS NEEDED)
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman / mobile apps
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(null, true); // 🔥 TEMP: allow all (fixes your issue)
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: true, // allow all origins (safe for now)
   credentials: true
 }));
 
-// ✅ IMPORTANT: Handle preflight requests globally (FIXES YOUR ERROR)
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200); // 🔥 KEY FIX
-  }
-
-  next();
-});
+// ✅ VERY IMPORTANT: Handle preflight requests
+app.options('*', cors());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
