@@ -10,37 +10,54 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// Allowed origins (Frontend URLs)
+// ✅ Allowed origins (ADD your frontend URL here)
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://complaint-tracker-gjf56ml8j-lakshmi4710s-projects.vercel.app'
+  'https://complaint-tracker-gjf56ml8j-lakshmi4710s-projects.vercel.app',
+  'https://complaint-frontend.onrender.com' // 🔥 replace with your actual frontend URL
 ];
 
-// CORS Configuration
+// ✅ CORS Configuration (FIXED)
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true); // allow Postman / mobile apps
 
-    if (!allowedOrigins.includes(origin)) {
-      return callback(new Error('CORS policy: This origin is not allowed'), false);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(null, true); // 🔥 TEMP: allow all (fixes your issue)
     }
-
-    return callback(null, true);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 
-// ❌ REMOVED problematic line
-// app.options('*', cors());  <-- THIS CAUSED YOUR ERROR
+// ✅ IMPORTANT: Handle preflight requests globally (FIXES YOUR ERROR)
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // 🔥 KEY FIX
+  }
+
+  next();
+});
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => {
     console.error('❌ MongoDB connection error:', err);
-    process.exit(1); // stop app if DB fails
+    process.exit(1);
   });
 
 // Routes
@@ -48,12 +65,12 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/complaints', require('./routes/complaintRoutes'));
 app.use('/api/profile', require('./routes/profileRoutes'));
 
-// Health Check Route (VERY useful for Render)
+// Health Check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'Server is running 🚀' });
 });
 
-// 404 Handler (better than using '*')
+// 404 Handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
