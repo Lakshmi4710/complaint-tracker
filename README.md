@@ -3,11 +3,6 @@ A web application that helps residents report and track maintenance issues in re
 
 ---
 
-## 🌐 Live Application
-
-🔗 https://complaint-tracker-gjf56ml8j-lakshmi4710s-projects.vercel.app
-
----
 
 ## Description
 
